@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "759923659185",
+    "project_id": "aseepk-5e249",
+    "storage_bucket": "aseepk-5e249.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:759923659185:android:fc3afd97c3baf928fded90",
+        "android_client_info": {
+          "package_name": "com.example.aseep"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDfgSYM27pkP2mXxI2bthze1Bss8Ozx91c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
