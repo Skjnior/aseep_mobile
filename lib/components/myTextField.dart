@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 class MyTextField extends StatelessWidget {
   final String hintext;
-  final IconData myIcon;
+  late IconData? myIcon;
   final TextEditingController controller;
   final bool obscureText;
   MyTextField({
@@ -11,6 +11,7 @@ class MyTextField extends StatelessWidget {
     required this.myIcon,
     required this.obscureText,
     required this.controller,
+    required String? Function(dynamic value) validator,
   });
 
   @override
@@ -23,6 +24,7 @@ class MyTextField extends StatelessWidget {
         decoration: InputDecoration(
             enabledBorder: OutlineInputBorder(
               borderSide: BorderSide(color: Theme.of(context).colorScheme.tertiary),
+              borderRadius: BorderRadius.circular(15)
             ),
             fillColor: Theme.of(context).colorScheme.secondary,
             focusedBorder: OutlineInputBorder(
