@@ -1,4 +1,5 @@
 import 'package:aseep/components/chat_bublle.dart';
+import 'package:aseep/screens/profile_screen.dart';
 import 'package:aseep/services/auth/auth_services.dart';
 import 'package:aseep/services/chat/chat_services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -93,6 +94,9 @@ class _ChatScreenState extends State<ChatScreen> {
       backgroundColor: Theme.of(context).colorScheme.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
+        iconTheme: IconThemeData(
+          color: Theme.of(context).colorScheme.tertiary,
+        ),
         elevation: 0,
         foregroundColor: Colors.grey,
         centerTitle: true,
@@ -106,32 +110,45 @@ class _ChatScreenState extends State<ChatScreen> {
         title: Column(
           children: [
             Text(
-                widget.receiverFirstName + " " + widget.receiverLastName,
-              style: const TextStyle(
-                fontSize: 18
+                "${widget.receiverFirstName} ${widget.receiverLastName}",
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.tertiary,
+                fontSize: 16
               ),
             ),
             Text(
                 widget.receiverEmail,
-              style: const TextStyle(
+              style:  TextStyle(
+                  color: Theme.of(context).colorScheme.tertiary,
                   fontSize: 10
               ),
             ),
           ],
         ),
         actions: [
+
           GestureDetector(
+            onTap: () => Get.to(() => ProfileScreen(
+                userEmail: widget.receiverEmail,
+                userId: widget.receiverID,
+                userFirstName: widget.receiverFirstName,
+                userLastName: widget.receiverLastName,
+                userImagePath: widget.receiverImagePath,
+            ),
+            ),
             child: Container(
               margin: EdgeInsets.only(right: 10),
               child: CircleAvatar(
                 radius: 20,
                 backgroundColor: Colors.grey,
-                backgroundImage: widget.receiverImagePath.isNotEmpty
-                    ? NetworkImage(widget.receiverImagePath)
-                    : const AssetImage('assets/images/ourLogo.jpg') as ImageProvider,
+                backgroundImage:
+                (widget.receiverImagePath.isNotEmpty)
+                    ? NetworkImage(widget.receiverImagePath) as ImageProvider
+                    : const AssetImage('assets/images/ourLogo.jpg'),
               ),
             ),
           ),
+
 
         ],
       ),
@@ -163,7 +180,7 @@ Widget _buildMessageList() {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(
               child: LoadingAnimationWidget.inkDrop(
-                  color: Color(0xff2983A6),
+                  color: Theme.of(context).colorScheme.secondary,
                   size: 35
               ),
             );
@@ -178,7 +195,8 @@ Widget _buildMessageList() {
   );
 }
 
-Widget _buildMessageItem(DocumentSnapshot doc) {
+
+  Widget _buildMessageItem(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
 
     // is current user
@@ -205,7 +223,7 @@ Widget _buildMessageItem(DocumentSnapshot doc) {
 }
 
 // build message input
-Widget _buildUserInput(BuildContext context) {
+  Widget _buildUserInput(BuildContext context) {
     return Row(
       children: [
         // textField should take up most of the space
@@ -213,22 +231,26 @@ Widget _buildUserInput(BuildContext context) {
           child: Padding(
             padding: const EdgeInsets.all(10.0),
             child: TextField(
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.inversePrimary,
+              ),
               focusNode: myFocusNode,
               obscureText: false,
               controller: _messageController,
               decoration: InputDecoration(
-                  enabledBorder: OutlineInputBorder(
+                border: InputBorder.none, // Supprime la ligne
+                enabledBorder: OutlineInputBorder(
                     borderSide: BorderSide(color: Theme.of(context).colorScheme.tertiary),
-                     borderRadius: BorderRadius.circular(20)
-                  ),
-                  fillColor: Theme.of(context).colorScheme.secondary,
-                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20)
+                ),
+                fillColor: Theme.of(context).colorScheme.secondary,
+                focusedBorder: OutlineInputBorder(
                     borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
-                      borderRadius: BorderRadius.circular(20)
-                  ),
-                  filled: true,
-                  hintText: "Votre message",
-                  hintStyle: TextStyle(color: Theme.of(context).colorScheme.primary),
+                    borderRadius: BorderRadius.circular(20)
+                ),
+                filled: true,
+                hintText: "Votre message",
+                hintStyle: TextStyle(color: Theme.of(context).colorScheme.inversePrimary),
               ),
             ),
           ),

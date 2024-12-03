@@ -4,6 +4,8 @@ import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/get_navigation.dart';
 import 'package:aseep/screens/chat/chat_screen.dart';
 
+import '../components/myAppBar.dart';
+
 class ProfileScreen extends StatelessWidget {
   final String userEmail;
   final String userFirstName;
@@ -25,10 +27,7 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Profil de $userEmail"),
-      ),
-
+      appBar: MyAppBar(text: 'Profile',),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

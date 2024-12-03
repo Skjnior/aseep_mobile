@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/get_navigation.dart';
 
+import '../components/myAppBar.dart';
+
 class BlockedUserPage extends StatelessWidget {
    BlockedUserPage({super.key});
 
@@ -49,19 +51,20 @@ class BlockedUserPage extends StatelessWidget {
     String userId = authService.getCurrentUser()!.uid;
 
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: Text("Utilisateurs bloques"),
-        actions: [],
-      ),
-
+      backgroundColor: Theme.of(context).colorScheme.background,
+      appBar: MyAppBar(text: 'Utilisateurs bloques',),
       body: StreamBuilder<List<Map<String, dynamic>>>(
           stream: chatService.getBlockedUsersStream(userId),
           builder: (context, snapshot) {
             // errors
             if(snapshot.hasError) {
-              return const Center(
-                child: Text("Erreur de chargement..."),
+              return  Center(
+                child: Text(
+                    "Erreur de chargement...",
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.inversePrimary,
+                  ),
+                ),
               );
             }
 
@@ -76,8 +79,13 @@ class BlockedUserPage extends StatelessWidget {
 
             // no users
             if(blockedUses.isEmpty) {
-              return const Center(
-                child: Text("Aucun utilisateurs bloquer"),
+              return  Center(
+                child: Text(
+                    "Aucun utilisateurs bloquer",
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.inversePrimary,
+                  ),
+                ),
               );
             }
 

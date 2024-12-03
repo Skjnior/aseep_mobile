@@ -29,39 +29,53 @@ class UserTile extends StatelessWidget {
           color: Theme.of(context).colorScheme.secondary,
           borderRadius: BorderRadius.circular(15),
         ),
-        margin: EdgeInsets.symmetric(vertical: 5, horizontal: 25),
-        padding: EdgeInsets.only(left: 8, right: 8, top: 8, bottom: 8),
+        margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 25),
+        padding: const EdgeInsets.only(left: 8,  top: 8, bottom: 8),
         child: ListTile(
-          leading: ClipOval(  // Utilisation de ClipOval pour rendre l'image ronde
-            child: Image.network(
-              imageToDisplay,
-              width: 40,  // Vous pouvez ajuster la taille de l'image
-              height: 40,
-              fit: BoxFit.cover,  // S'assurer que l'image couvre bien la zone
-              errorBuilder: (context, error, stackTrace) {
-                // Si l'image réseau échoue, afficher l'image par défaut
-                return Image.asset(
-                  'assets/images/ourLogo.jpg',
-                  width: 50,
-                  height: 50,
-                  fit: BoxFit.cover,
-                );
-              },
+          leading: GestureDetector(
+            onTap: onTapPro,
+            child: ClipOval(  // Utilisation de ClipOval pour rendre l'image ronde
+              child: Image.network(
+                imageToDisplay,
+                width: 40,  // Vous pouvez ajuster la taille de l'image
+                height: 40,
+                fit: BoxFit.cover,  // S'assurer que l'image couvre bien la zone
+                errorBuilder: (context, error, stackTrace) {
+                  // Si l'image réseau échoue, afficher l'image par défaut
+                  return Image.asset(
+                    'assets/images/ourLogo.jpg',
+                    width: 50,
+                    height: 50,
+                    fit: BoxFit.cover,
+                  );
+                },
+              ),
             ),
           ),
-          title: GestureDetector(
-            onTap: onTapPro,
-              child: Text(
-                  "${firstName} ${name}",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold
-                ),
-              ),
+          title: Text(
+              "${firstName} ${name}",
+            style:  TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.inversePrimary,
+            ),
           ),
-            subtitle: Text(text),
+            subtitle: Text(
+                text,
+              style: TextStyle(
+                overflow: TextOverflow.ellipsis,
+                color: Theme.of(context).colorScheme.inversePrimary,
+              ),
+            ),
           trailing: GestureDetector(
-              child: Icon(Icons.navigate_next_outlined),
-            onTap: onTap,
+              onTap: onTap,
+              child: Container(
+                height: 90,
+                width: 50,
+                  child:  Icon(
+                      Icons.navigate_next_outlined,
+                    color: Theme.of(context).colorScheme.inversePrimary,
+                  ),
+              ),
           ),
         ),
       ),

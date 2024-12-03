@@ -18,7 +18,7 @@ final navigatorKey = GlobalKey<NavigatorState>();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await FirebaseApi().initNotifications();
+  // await FirebaseApi().initNotifications();
 
   // Vérifier si c'est la première fois que l'utilisateur lance l'application
   final prefs = await SharedPreferences.getInstance();
@@ -50,11 +50,12 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       title: 'ASEEP APP',
       navigatorKey: navigatorKey,
-      routes: {
+     /* routes: {
         '/notification_screen': (context) => const NotificationsScreen(),
-      },
+      },*/
       theme: Provider.of<ThemeProvider>(context).themeData,
       home: isFirstLaunch ? const OmbordingScreen() : const AuthGate(),
+      //   home:  OmbordingScreen()
     );
   }
 }

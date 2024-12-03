@@ -28,19 +28,21 @@ class _OmbordingScreenState extends State<OmbordingScreen> {
         children: [
           // Page view for the onboarding
           PageView(
+            scrollDirection: Axis.vertical,
             controller: _pageController,
             onPageChanged: (index) {
               setState(() {
                 onLastPage = (index == 3); // Last page reached
               });
             },
-            children: const [
+            children: [
               IntroductionScreen1(),
-              IntroductionScreen2(),
-              IntroductionScreen3(),
-              IntroductionScreen4(),
+              const IntroductionScreen2(),
+              const IntroductionScreen3(),
+              const IntroductionScreen4(),
             ],
           ),
+
           // Dot indicators
           Container(
             alignment: Alignment(0, 0.75),
@@ -56,7 +58,7 @@ class _OmbordingScreenState extends State<OmbordingScreen> {
                 ),
 
                 // Dot indicator
-                SmoothPageIndicator(controller: _pageController, count: 4),
+                /*SmoothPageIndicator(controller: _pageController, count: 4),*/
 
                 // Next or Done
                 onLastPage

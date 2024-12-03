@@ -23,7 +23,6 @@ class WelcomScreen extends StatelessWidget {
         centerTitle: true,
         title: Text("Acceuil"),
       ),
-      drawer: MyDrawer(),
 
       body: _buildFilierList(context),
     );

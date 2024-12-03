@@ -32,7 +32,7 @@ class MyTextField extends StatelessWidget {
             ),
             filled: true,
             hintText: hintext,
-            hintStyle: TextStyle(color: Theme.of(context).colorScheme.primary),
+            hintStyle: TextStyle(color: Theme.of(context).colorScheme.inversePrimary),
             prefixIcon: Icon(
               myIcon,
             )

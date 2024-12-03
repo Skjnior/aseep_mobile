@@ -18,7 +18,6 @@ class ChatBublle extends StatelessWidget {
      required this.userId
    });
 
-
    // Show options
   void _showOptions(BuildContext context, String messageId, String userId) {
     showBottomSheet(
@@ -147,25 +146,25 @@ class ChatBublle extends StatelessWidget {
         }
       },
       child: Container(
-        padding: EdgeInsets.all(16),
-        margin: EdgeInsets.symmetric(vertical: 2.5, horizontal: 25),
+        padding: const EdgeInsets.all(12),
+        margin: const EdgeInsets.symmetric(vertical: 2.5, horizontal: 25),
         decoration: BoxDecoration(
           borderRadius:
           isCurrentUser
-              ? BorderRadius.only(
-            topLeft: Radius.circular(15),
-            topRight: Radius.circular(15),
-            bottomLeft: Radius.circular(15)
+              ? const BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(25),
+            bottomLeft: Radius.circular(20)
           )
-              : BorderRadius.only(
+              : const BorderRadius.only(
 
-              topRight: Radius.circular(15),
-              bottomRight: Radius.circular(15),
-              bottomLeft: Radius.circular(15)
+              topRight: Radius.circular(20),
+              bottomRight: Radius.circular(20),
+              bottomLeft: Radius.circular(25)
           ),
           color: isCurrentUser
-              ? (isDarkMode ? Colors.green.shade600 : Colors.green.shade500)
-              : (isDarkMode ? Colors.grey.shade800 : Colors.grey.shade200),
+              ? (isDarkMode ? Theme.of(context).colorScheme.secondary : Theme.of(context).colorScheme.secondary)
+              : (isDarkMode ? Theme.of(context).colorScheme.secondary : Theme.of(context).colorScheme.secondary),
         ),
         child: Text(
             message,
