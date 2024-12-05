@@ -53,7 +53,9 @@ class _SignupScreenState extends State<SignupScreen> {
   List<String> _selectedNiveaux = [];
 
   /// Méthode pour gérer l'inscription
+  /// Méthode pour gérer l'inscription
   Future<void> signup(BuildContext context) async {
+    if (!mounted) return; // Vérifie si le widget est monté avant de procéder
     setState(() {
       isLoading = true; // Activer le chargement
     });
@@ -61,9 +63,11 @@ class _SignupScreenState extends State<SignupScreen> {
     try {
       // Vérification si les mots de passe correspondent
       if (_pwController.text != _confirmPwController.text) {
-        setState(() {
-          isLoading = false; // Désactiver le chargement
-        });
+        if (mounted) {
+          setState(() {
+            isLoading = false; // Désactiver le chargement
+          });
+        }
         _showErrorDialog(context, "Les mots de passe ne correspondent pas !");
         return;
       }
@@ -73,18 +77,22 @@ class _SignupScreenState extends State<SignupScreen> {
           _firstNameController.text.isEmpty ||
           _lastNameController.text.isEmpty ||
           _matriculeController.text.isEmpty) {
-        setState(() {
-          isLoading = false; // Désactiver le chargement
-        });
+        if (mounted) {
+          setState(() {
+            isLoading = false; // Désactiver le chargement
+          });
+        }
         _showErrorDialog(context, "Tous les champs sont obligatoires !");
         return;
       }
 
       // Validation de l'email
       if (!_isValidEmail(_emailController.text)) {
-        setState(() {
-          isLoading = false; // Désactiver le chargement
-        });
+        if (mounted) {
+          setState(() {
+            isLoading = false; // Désactiver le chargement
+          });
+        }
         _showErrorDialog(context, "Veuillez entrer un email valide !");
         return;
       }
@@ -96,9 +104,11 @@ class _SignupScreenState extends State<SignupScreen> {
           .get();
 
       if (querySnapshot.docs.isNotEmpty) {
-        setState(() {
-          isLoading = false; // Désactiver le chargement
-        });
+        if (mounted) {
+          setState(() {
+            isLoading = false; // Désactiver le chargement
+          });
+        }
         _showErrorDialog(context, "Cette matricule existe déjà !");
         return;
       }
@@ -114,13 +124,14 @@ class _SignupScreenState extends State<SignupScreen> {
       if (user != null) {
         // Vérifier et télécharger la photo
         bool imageUploadFailed = false;
+        String uploadedImageUrl = "";
 
         if (_selectedImage != null) {
           try {
-            _uploadedImageUrl = await _uploadImageToFirebase();
+            uploadedImageUrl = await _uploadImageToFirebase();
           } catch (e) {
             print("Erreur lors du téléchargement de l'image : $e");
-            _uploadedImageUrl = "";
+            uploadedImageUrl = "";
             imageUploadFailed = true;
           }
         }
@@ -134,17 +145,17 @@ class _SignupScreenState extends State<SignupScreen> {
           'matricule': _matriculeController.text,
           'niveaux': _selectedNiveaux,
           'birthDate': _selectedDate?.toIso8601String(),
-          'profileImageUrl': _uploadedImageUrl,
+          'profileImageUrl': uploadedImageUrl,
         });
 
-        if (imageUploadFailed && context.mounted) {
+        if (imageUploadFailed && mounted) {
           _showErrorDialog(
             context,
             "Votre compte a été créé, mais votre photo de profil n'a pas pu être téléchargée. Veuillez mettre à jour votre profil ultérieurement.",
           );
         }
 
-        if (context.mounted) {
+        if (mounted) {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => HomeScreen()),
@@ -154,17 +165,20 @@ class _SignupScreenState extends State<SignupScreen> {
         throw Exception("L'utilisateur est null après l'inscription.");
       }
     } catch (e) {
-      if (context.mounted) {
+      if (mounted) {
         _showErrorDialog(context, e.toString());
       } else {
         print("Erreur hors contexte valide : $e");
       }
     } finally {
-      setState(() {
-        isLoading = false; // Désactiver le chargement après le traitement
-      });
+      if (mounted) {
+        setState(() {
+          isLoading = false; // Désactiver le chargement après le traitement
+        });
+      }
     }
   }
+
 
 
   // Chat & auth service
@@ -192,6 +206,14 @@ class _SignupScreenState extends State<SignupScreen> {
       });
     }
   }
+
+
+  Future<void> _refreshUsers() async {
+    await _chatService.refreshData(); // Optional for server updates
+    await _loadUsers(); // Reload users locally
+  }
+
+
 
   // Méthode pour afficher une boîte de dialogue de sélection multiple
   Future<void> _showMultiSelectDialog() async {
@@ -553,14 +575,14 @@ class _SignupScreenState extends State<SignupScreen> {
                     )
                         : neumorphicContainer(
                           child: MyButton(
-                                          text: "S'inscrire",
-                                          onTap: isLoading ? null : () {
+                            text: "S'inscrire",
+                            onTap: isLoading ? null : () {
                           setState(() {
-                            _loadUsers();
+                            _refreshUsers();
                           });
                           signup(context);
-                                          },
-                                        ),
+                          },
+                          ),
                         ),
                     const SizedBox(height: 15),
                     // Texte pour la connexion

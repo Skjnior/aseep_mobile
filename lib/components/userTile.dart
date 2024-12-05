@@ -18,6 +18,7 @@ class UserTile extends StatelessWidget {
     this.imageUrl,  // Initialiser l'image si elle est fournie
   });
 
+
   @override
   Widget build(BuildContext context) {
     // Définir l'image à afficher, soit l'image de l'utilisateur, soit l'image par défaut

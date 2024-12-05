@@ -1,4 +1,5 @@
 import 'package:aseep/components/userTile.dart';
+import 'package:aseep/myUserTiteFromHomeScreen.dart';
 import 'package:aseep/screens/chat/chat_screen.dart';
 import 'package:aseep/screens/profile_screen.dart';
 import 'package:aseep/services/auth/auth_services.dart';
@@ -16,6 +17,11 @@ import '../components/myAppBar.dart';
 import '../components/my_drawer.dart';
 
 class HomeScreen extends StatefulWidget {
+  String currentUserFirstName = '';
+  String currentUserLastName = '';
+  String currentUserEmail = '';
+  String currentUserProfileImageUrl = '';
+
   HomeScreen({super.key});
 
   @override
@@ -23,38 +29,23 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-
-  // Chat & auth service
   final MyServices _chatService = MyServices();
   final AuthService _authService = AuthService();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
-  // Une liste pour stocker les id des users
+  TextEditingController _searchController = TextEditingController();
+  ScrollController _scrollController = ScrollController();  // ScrollController ajouté
   List<String> docIDs = [];
-
-
-  // Local state for user list
   List<Map<String, dynamic>> _userList = [];
   bool _isLoading = true;
+  String _searchErrorMessage = '';
 
   @override
   void initState() {
     super.initState();
-    _loadUsers(); // Load initial users
+    _loadUsers();
     fetchCurrentUserData();
   }
-
-  /* Future getDocId() async {
-    await FirebaseFirestore.instance.collection("Users").where('uid', ).get().then(
-        (snapshot) => snapshot.docs.forEach(
-            (document) {
-              docIDs.add(document.reference.id);
-            }
-        ),
-    );
-  }*/
-
 
   void fetchCurrentUserData() async {
     String currentUserUid = FirebaseAuth.instance.currentUser?.uid ?? '';
@@ -83,15 +74,92 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
 
+
+  String currentUserFirstName = '';
+  String currentUserLastName = '';
+  String currentUserEmail = '';
+  String currentUserProfileImageUrl = '';
+  void findUsers(String query) async {
+    if (query.isEmpty) {
+      await _loadUsers();
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _searchErrorMessage = '';  // Réinitialiser le message d'erreur
+    });
+
+    try {
+      QuerySnapshot snapshot = await _firestore
+          .collection('Users')
+          .where('firstName', isGreaterThanOrEqualTo: query)
+          .where('firstName', isLessThanOrEqualTo: '$query\uf8ff')
+          .get();
+
+      // Si aucun résultat n'est trouvé avec 'firstName', essayer 'lastName'
+      if (snapshot.docs.isEmpty) {
+        snapshot = await _firestore
+            .collection('Users')
+            .where('lastName', isGreaterThanOrEqualTo: query)
+            .where('lastName', isLessThanOrEqualTo: '$query\uf8ff')
+            .get();
+      }
+
+      // Si toujours aucun résultat, essayer avec 'email'
+      if (snapshot.docs.isEmpty) {
+        snapshot = await _firestore
+            .collection('Users')
+            .where('email', isGreaterThanOrEqualTo: query)
+            .where('email', isLessThanOrEqualTo: '$query\uf8ff')
+            .get();
+      }
+
+      List<Map<String, dynamic>> searchedUsers = snapshot.docs.map((doc) {
+        return doc.data() as Map<String, dynamic>;
+      }).toList();
+
+      if (searchedUsers.isNotEmpty) {
+        setState(() {
+          _userList = searchedUsers;
+          _isLoading = false;
+        });
+        _scrollToUser(searchedUsers.first);
+      } else {
+        setState(() {
+          _userList = [];
+          _isLoading = false;
+          _searchErrorMessage = 'Aucun utilisateur trouvé';
+        });
+      }
+    } catch (e) {
+      print("Erreur lors de la recherche d'utilisateurs : $e");
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+
+
+  void _scrollToUser(Map<String, dynamic> userData) {
+    int index = _userList.indexOf(userData);
+    if (index != -1 && _scrollController.hasClients) {
+      // Utilisation d'une méthode mieux adaptée pour faire défiler
+      double itemHeight = 100.0;  // Vous pouvez ajuster la hauteur des éléments ici
+      _scrollController.jumpTo(index * itemHeight);
+    }
+  }
+
+
   Future<void> _loadUsers() async {
     setState(() {
       _isLoading = true;
     });
 
     try {
-      final usersStream = _chatService
-          .getUsersStreamExcludingBlockedAndDeleted();
-      final users = await usersStream.first; // Fetch first batch of users
+      final usersStream = _chatService.getUsersStreamExcludingBlockedAndDeleted();
+      final users = await usersStream.first;
       setState(() {
         _userList = users;
         _isLoading = false;
@@ -104,130 +172,263 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-
   Future<void> _refreshUsers() async {
-    await _chatService.refreshData(); // Optional for server updates
-    await _loadUsers(); // Reload users locally
+    await _chatService.refreshData();
+    await _loadUsers();
   }
 
-
-  // Block user
+  // Blocage d'un utilisateur
   void _blockUser(BuildContext context, String userId) {
     showDialog(
       context: context,
-      builder: (context) =>
-          AlertDialog(
-            title: const Text("Bloquer l'Utilisateur"),
-            content: const Text(
-                "Etes-vous sûr de vouloir bloquer cette personne ?"),
-            actions: [
-              TextButton(
-                onPressed: () => Get.back(),
-                child: const Text('Non'),
-              ),
-              TextButton(
-                onPressed: () {
-                  MyServices().blockUser(userId);
-                  _refreshUsers();
-                  Get.back();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text("Utilisateur bloqué avec succès!")),
-                  );
-                },
-                child: const Text('Bloquer'),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: const Text("Bloquer l'Utilisateur"),
+        content: const Text("Etes-vous sûr de vouloir bloquer cette personne ?"),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text('Non'),
           ),
+          TextButton(
+            onPressed: () {
+              MyServices().blockUser(userId);
+              _refreshUsers();
+              Get.back();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Utilisateur bloqué avec succès!")),
+              );
+            },
+            child: const Text('Bloquer'),
+          ),
+        ],
+      ),
     );
   }
 
-  // Delete user with all chat
+  // Suppression d'un utilisateur avec sa conversation
   void _deleteUserWithChat(BuildContext context, String userId) {
     showDialog(
       context: context,
-      builder: (context) =>
-          AlertDialog(
-            title: const Text("Suppression de la conversation"),
-            content: const Text(
-                "Etes-vous sûr de vouloir supprimer cette conversation ?"),
-            actions: [
-              TextButton(
-                onPressed: () => Get.back(),
-                child: const Text('Non'),
-              ),
-              TextButton(
-                onPressed: () {
-                  MyServices().deleteUser(userId);
-                  Get.back();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text("Conversation supprimée avec succès!")),
-                  );
-                  _refreshUsers();
-                },
-                child: const Text('Supprimer'),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: const Text("Suppression de la conversation"),
+        content: const Text("Etes-vous sûr de vouloir supprimer cette conversation ?"),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text('Non'),
           ),
+          TextButton(
+            onPressed: () {
+              MyServices().deleteUser(userId);
+              Get.back();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Conversation supprimée avec succès!")),
+              );
+              _refreshUsers();
+            },
+            child: const Text('Supprimer'),
+          ),
+        ],
+      ),
     );
   }
+
+
 
   // Report message
   void _reportUser(BuildContext context, String userId) {
     showDialog(
       context: context,
-      builder: (context) =>
-          AlertDialog(
-            title: const Text("Signaler ce Message"),
-            content: const Text(
-                "Etes-vous sûr de vouloir signaler cet utilisateur ?"),
-            actions: [
-              TextButton(
-                onPressed: () => Get.back(),
-                child: const Text('Annuler'),
-              ),
-              TextButton(
-                onPressed: () {
-                  MyServices().reportMessage(userId);
-                  Get.back();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text("Utilisateur signalé avec succès!")),
-                  );
-                  _refreshUsers();
-                },
-                child: const Text('Signaler'),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: const Text("Signaler ce Message"),
+        content:
+        const Text("Etes-vous sûr de vouloir signaler cet utilisateur ?"),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text('Annuler'),
           ),
+          TextButton(
+            onPressed: () {
+              MyServices().reportMessage(userId);
+              Get.back();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                    content: Text("Utilisateur signalé avec succès!")),
+              );
+              _refreshUsers();
+            },
+            child: const Text('Signaler'),
+          ),
+        ],
+      ),
     );
   }
 
-
-  String currentUserFirstName = '';
-  String currentUserLastName = '';
-  String currentUserEmail = '';
-  String currentUserProfileImageUrl = '';
 
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:Theme.of(context).colorScheme.background,
-      appBar: MyAppBar(text: 'Home Screen',),
-
-      drawer: MyDrawer(
-        userName: "$currentUserFirstName $currentUserLastName",
-        userEmail: currentUserEmail,
-        userImage: currentUserProfileImageUrl,
+      backgroundColor: Theme.of(context).colorScheme.background,
+      appBar: MyAppBar(
+        text: 'Home Screen',
       ),
-
-      body: Container(),
+      drawer: const MyDrawer(
+        userName: "",
+        userEmail: "",
+        userImage: "",
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {},
+        child: const Icon(Icons.add),
+      ),
+      body: Column(
+        children: [
+       /*   Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 5),
+            child: SizedBox(
+              height: 46,
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(100),
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                padding: const EdgeInsets.only(top: 10, left: 10, bottom: 8, right: 10),
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 18.0),
+                        child: TextField(
+                          controller: _searchController,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.tertiary,
+                          ),
+                          cursorColor: Theme.of(context).colorScheme.primary,
+                          maxLines: 1,
+                          decoration: InputDecoration(
+                            suffixIcon: IconButton(
+                              onPressed: () => findUsers(_searchController.text),
+                              icon: Icon(
+                                Icons.search,
+                                color: Theme.of(context).colorScheme.tertiary,
+                              ),
+                            ),
+                            hintStyle: TextStyle(
+                              color: Theme.of(context).colorScheme.tertiary,
+                            ),
+                            isDense: true,
+                            border: InputBorder.none,
+                            hintText: 'Recherche',
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),*/
+          Expanded(
+            child: _isLoading
+                ? Center(
+              child: LoadingAnimationWidget.inkDrop(
+                color: Theme.of(context).colorScheme.secondary,
+                size: 35,
+              ),
+            )
+                : _userList.isEmpty
+                ? Center(
+              child: Text(
+                _searchErrorMessage.isEmpty
+                    ? "Aucun utilisateur disponible"
+                    : _searchErrorMessage,
+              ),
+            )
+                : RefreshIndicator(
+              backgroundColor: Theme.of(context).colorScheme.secondary,
+              onRefresh: _refreshUsers,
+              child: ListWheelScrollView(
+                controller: _scrollController,  // Ajout du contrôleur
+                physics: const BouncingScrollPhysics(),
+                itemExtent: 570,
+                diameterRatio: 7.0,
+                perspective: 0.003,
+                children: _userList.map((userData) {
+                  return _builderListItem(userData, context);
+                }).toList(),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
+
+  Widget _builderListItem(Map<String, dynamic> userData, BuildContext context) {
+    if (userData["email"] != _authService.getCurrentUser()!.email) {
+      return GestureDetector(
+        onLongPress: () {
+          _deleteUserWithChat(context, userData["uid"]);
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Slidable(
+            key: ValueKey(userData["uid"]),
+            startActionPane: ActionPane(
+              motion: const ScrollMotion(),
+              children: [
+                SlidableAction(
+                  onPressed: (_) => _blockUser(context, userData["uid"]),
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                  icon: Icons.block,
+                  label: 'Bloquer',
+                  borderRadius: BorderRadius.circular(23),
+                  padding: const EdgeInsets.all(10),
+                ),
+                const SizedBox(width: 10),
+                SlidableAction(
+                  onPressed: (_) => _reportUser(context, userData["uid"]),
+                  backgroundColor: Colors.blue,
+                  foregroundColor: Colors.white,
+                  icon: Icons.report,
+                  label: 'Signaler',
+                  borderRadius: BorderRadius.circular(23),
+                  padding: const EdgeInsets.all(10),
+                ),
+              ],
+            ),
+            child: MyUserTileFromeHomeScreen(
+              text: userData["email"],
+              name: userData["lastName"],
+              firstName: userData["firstName"],
+              onTap: () {
+                Get.to(() => ChatScreen(
+                  receiverEmail: userData["email"],
+                  receiverID: userData["uid"],
+                  receiverFirstName: userData["firstName"],
+                  receiverLastName: userData["lastName"],
+                  receiverImagePath: userData["profileImageUrl"],
+                ));
+              },
+              onTapPro: () {
+                Get.to(() => ProfileScreen(
+                  userId: userData["uid"],
+                  userEmail: userData["email"],
+                  userFirstName: userData["firstName"],
+                  userImagePath: userData["profileImageUrl"],
+                  userLastName: userData["lastName"],
+                ));
+              },
+            ),
+          ),
+          ),
+      );
+    }
+    return const SizedBox();
+  }
 }
-
-
-
 
