@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:aseep/components/chat_bublle.dart';
 import 'package:aseep/screens/profile_screen.dart';
 import 'package:aseep/services/auth/auth_services.dart';
@@ -12,51 +13,56 @@ import 'package:loading_animation_widget/loading_animation_widget.dart';
 class ChatScreen extends StatefulWidget {
   final String receiverFirstName;
   final String receiverLastName;
-  final String receiverImagePath;
   final String receiverEmail;
   final String receiverID;
 
-   ChatScreen({super.key, required this.receiverEmail, required this.receiverID, required this.receiverFirstName, required this.receiverLastName, required this.receiverImagePath});
+  ChatScreen({
+    super.key,
+    required this.receiverEmail,
+    required this.receiverID,
+    required this.receiverFirstName,
+    required this.receiverLastName,
+    required receiverImagePath,
+  });
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-   // text controller
+  // Generate a random image URL
+  static final Random random = Random();
+  String get randomPictureUrl {
+    final randomInt = random.nextInt(1000);
+    return 'https://picsum.photos/seed/$randomInt/300/300';
+  }
+
+  // Text controller
   final TextEditingController _messageController = TextEditingController();
 
-  // chat & auth services
+  // Chat & auth services
   final MyServices _chatService = MyServices();
   final AuthService _authService = AuthService();
 
-  // for textField focus
+  // For textField focus
   FocusNode myFocusNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
-    // add listener to focus node
     myFocusNode.addListener(() {
-      if(myFocusNode.hasFocus) {
-        // cause a delay so that the keyboard has time to show up
-        // then the amount of remaining space will be calculated
-        // then scroll down
+      if (myFocusNode.hasFocus) {
         Future.delayed(
           const Duration(milliseconds: 500),
-            () => scrollDown(),
+              () => scrollDown(),
         );
       }
     });
-
-    // wait a bit for listview to be built, then scroll to bottom
     Future.delayed(
       const Duration(milliseconds: 500),
-        () => scrollDown(),
+          () => scrollDown(),
     );
-
   }
-
 
   @override
   void dispose() {
@@ -65,30 +71,24 @@ class _ChatScreenState extends State<ChatScreen> {
     super.dispose();
   }
 
-  /// scroll controller
+  /// Scroll controller
   final ScrollController _scrollController = ScrollController();
   void scrollDown() {
     _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: const Duration(seconds: 1),
-        curve: Curves.fastOutSlowIn,
+      _scrollController.position.maxScrollExtent,
+      duration: const Duration(seconds: 1),
+      curve: Curves.fastOutSlowIn,
     );
   }
 
-
-
-  // send message
+  // Send message
   void sendMessage() async {
-    // if there is something inside the textField
-    if(_messageController.text.isNotEmpty) {
-      // send the message
+    if (_messageController.text.isNotEmpty) {
       await _chatService.sendMessage(widget.receiverID, _messageController.text);
       _messageController.clear();
     }
     scrollDown();
   }
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -103,132 +103,112 @@ class _ChatScreenState extends State<ChatScreen> {
         foregroundColor: Colors.grey,
         centerTitle: true,
         leading: IconButton(
-            onPressed: () => Get.back(),
-            icon: Icon(
-              CupertinoIcons.back,
-              size: 30,
-            )
+          onPressed: () => Get.back(),
+          icon: const Icon(
+            CupertinoIcons.back,
+            size: 30,
+          ),
         ),
         title: Column(
           children: [
             Text(
-                "${widget.receiverFirstName} ${widget.receiverLastName}",
+              "${widget.receiverFirstName} ${widget.receiverLastName}",
               style: TextStyle(
                 color: Theme.of(context).colorScheme.tertiary,
-                fontSize: 16
+                fontSize: 16,
               ),
             ),
             Text(
-                widget.receiverEmail,
-              style:  TextStyle(
-                  color: Theme.of(context).colorScheme.tertiary,
-                  fontSize: 10
+              widget.receiverEmail,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.tertiary,
+                fontSize: 10,
               ),
             ),
           ],
         ),
         actions: [
-
           GestureDetector(
-            onTap: () => Get.to(() => ProfileScreen(
+            onTap: () => Get.to(
+                  () => ProfileScreen(
                 userEmail: widget.receiverEmail,
                 userId: widget.receiverID,
                 userFirstName: widget.receiverFirstName,
                 userLastName: widget.receiverLastName,
-                userImagePath: widget.receiverImagePath,
-            ),
+                userImagePath: randomPictureUrl,
+              ),
             ),
             child: Container(
-              margin: EdgeInsets.only(right: 10),
+              margin: const EdgeInsets.only(right: 10),
               child: CircleAvatar(
                 radius: 20,
                 backgroundColor: Colors.grey,
-                backgroundImage:
-                (widget.receiverImagePath.isNotEmpty)
-                    ? NetworkImage(widget.receiverImagePath) as ImageProvider
-                    : const AssetImage('assets/images/ourLogo.jpg'),
+                backgroundImage: NetworkImage(randomPictureUrl),
               ),
             ),
           ),
-
-
         ],
       ),
-
       body: Column(
         children: [
-          // display all nessages
           Expanded(
             child: _buildMessageList(),
           ),
-          _buildUserInput(context ),
+          _buildUserInput(context),
         ],
       ),
     );
   }
 
-  // build message list
-Widget _buildMessageList() {
+  Widget _buildMessageList() {
     String senderID = _authService.getCurrentUser()!.uid;
     return StreamBuilder(
-        stream: _chatService.getMessages(senderID, widget.receiverID),
-        builder: (context, snapshot) {
-          // error
-          if (snapshot.hasError) {
-            return const Text("Error");
-          }
-
-          // loading
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: LoadingAnimationWidget.inkDrop(
-                  color: Theme.of(context).colorScheme.secondary,
-                  size: 35
-              ),
-            );
-          }
-
-          // return List view
-          return ListView(
-            controller: _scrollController,
-            children: snapshot.data!.docs.map((doc) => _buildMessageItem(doc)).toList(),
+      stream: _chatService.getMessages(senderID, widget.receiverID),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return const Text("Error");
+        }
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+            child: LoadingAnimationWidget.inkDrop(
+              color: Theme.of(context).colorScheme.secondary,
+              size: 35,
+            ),
           );
         }
-  );
-}
-
+        return ListView(
+          controller: _scrollController,
+          children: snapshot.data!.docs.map((doc) => _buildMessageItem(doc)).toList(),
+        );
+      },
+    );
+  }
 
   Widget _buildMessageItem(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-
-    // is current user
     bool isCurrentUser = data["senderID"] == _authService.getCurrentUser()!.uid;
-
-    // align messsage to the right if sender is the current user, otherwise left
     var alignment = isCurrentUser ? Alignment.centerRight : Alignment.centerLeft;
-
 
     return Container(
       alignment: alignment,
-        child: Column(
-          crossAxisAlignment: isCurrentUser ?  CrossAxisAlignment.end : CrossAxisAlignment.start,
-          children: [
-            ChatBublle(
-                message: data["message"],
-                isCurrentUser: isCurrentUser,
-                messageId: doc.id,
-                userId: data["senderID"],
-            ),
-          ],
-        ),
+      child: Column(
+        crossAxisAlignment:
+        isCurrentUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        children: [
+          ChatBublle(
+            message: data["message"],
+            isCurrentUser: isCurrentUser,
+            messageId: doc.id,
+            userId: data["senderID"],
+          ),
+        ],
+      ),
     );
-}
+  }
 
-// build message input
   Widget _buildUserInput(BuildContext context) {
     return Row(
       children: [
-        // textField should take up most of the space
         Expanded(
           child: Padding(
             padding: const EdgeInsets.all(10.0),
@@ -237,69 +217,39 @@ Widget _buildMessageList() {
                 color: Theme.of(context).colorScheme.inversePrimary,
               ),
               focusNode: myFocusNode,
-              obscureText: false,
               controller: _messageController,
               decoration: InputDecoration(
-                border: InputBorder.none, // Supprime la ligne
+                border: InputBorder.none,
                 enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Theme.of(context).colorScheme.tertiary),
-                    borderRadius: BorderRadius.circular(20)
+                  borderSide: BorderSide(
+                    color: Theme.of(context).colorScheme.tertiary,
+                  ),
+                  borderRadius: BorderRadius.circular(20),
                 ),
                 fillColor: Theme.of(context).colorScheme.secondary,
                 focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Theme.of(context).colorScheme.primary),
-                    borderRadius: BorderRadius.circular(20)
+                  borderSide: BorderSide(
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                  borderRadius: BorderRadius.circular(20),
                 ),
                 filled: true,
                 hintText: "Votre message",
-                hintStyle: TextStyle(color: Theme.of(context).colorScheme.inversePrimary),
+                hintStyle: TextStyle(
+                  color: Theme.of(context).colorScheme.inversePrimary,
+                ),
               ),
             ),
           ),
         ),
-
-        // sender Button
         Container(
           margin: const EdgeInsets.only(right: 25),
           child: IconButton(
-              onPressed: sendMessage,
-              icon: const Icon(
-                  Icons.send
-              )
+            onPressed: sendMessage,
+            icon: const Icon(Icons.send),
           ),
         ),
       ],
     );
+  }
 }
-}
-
-
-/*SizedBox(
-          height: 56,
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(100),
-              color: Colors.white,
-            ),
-            padding: const EdgeInsets.fromLTRB(31, 12, 12, 12),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const Icon(Icons.search),
-                const SizedBox(width: 23.5),
-                Expanded(
-                  child: TextField(
-                    maxLines: 1,
-                    decoration: InputDecoration(
-                      isDense: true,
-                      border: InputBorder.none,
-                      hintText: 'Search replies',
-                      hintStyle: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                  ),
-                ),
-
-              ],
-            ),
-          ),
-        ),*/

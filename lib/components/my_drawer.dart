@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:aseep/screens/filiere/create_filiere_screen.dart';
 import 'package:aseep/screens/notifications_screen.dart';
 import 'package:aseep/screens/profile_screen.dart';
@@ -37,6 +39,7 @@ class _MyDrawerState extends State<MyDrawer> {
       firstName = prefs.getString('firstName') ?? 'Aucun';
     });
   }
+  static final random = Random();
 
   // Méthode pour récupérer les données de l'utilisateur courant
   void fetchCurrentUserData() async {
@@ -104,8 +107,9 @@ class _MyDrawerState extends State<MyDrawer> {
                         radius: 30,
                         backgroundColor: Colors.grey,
                         backgroundImage: userImage.isNotEmpty
-                            ? NetworkImage(userImage)
-                            : const AssetImage('assets/images/ourLogo.jpg') as ImageProvider,
+                            ? NetworkImage("https://picsum.photos/seed/${random.nextInt(1000)}/300/300")
+                            :  NetworkImage("https://picsum.photos/seed/${random.nextInt(1000)}/300/300"),
+                            // : const AssetImage('assets/images/ourLogo.jpg') as ImageProvider,
                       ),
                       SizedBox(width: 10),
                       Padding(

@@ -13,6 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'introduction_screens/introduction_screen_1.dart';
 import 'theme/ligth_mode.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
@@ -61,7 +62,10 @@ class MyApp extends StatelessWidget {
       },*/
       theme: Provider.of<ThemeProvider>(context).themeData,
       // home: isFirstLaunch ? const OmbordingScreen() : const AuthGate(),
-        home:  AuthGate()
+      //   home:  AuthGate()
+        home:  OmbordingScreen()
     );
   }
 }
+
+

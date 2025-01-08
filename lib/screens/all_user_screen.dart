@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:aseep/components/userTile.dart';
 import 'package:aseep/screens/chat/chat_screen.dart';
 import 'package:aseep/screens/profile_screen.dart';
@@ -6,6 +8,7 @@ import 'package:aseep/services/chat/chat_services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get_core/src/get_main.dart';
@@ -29,11 +32,85 @@ class _AllUsersScreenState extends State<AllUsersScreen> {
   final AuthService _authService = AuthService();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  TextEditingController _searchController = TextEditingController();
+  ScrollController _scrollController = ScrollController();
+  String _searchErrorMessage = '';
+  static final random = Random();
+  
 
   // Une liste pour stocker les id des users
   List<String> docIDs = [];
 
 
+/*  void _scrollToUser(Map<String, dynamic> userData) {
+    int index = _userList.indexOf(userData);
+    if (index != -1 && _scrollController.hasClients) {
+      // Utilisation d'une méthode mieux adaptée pour faire défiler
+      double itemHeight = 100.0;  // Vous pouvez ajuster la hauteur des éléments ici
+      _scrollController.jumpTo(index * itemHeight);
+    }
+  }
+
+  void findUsers(String query) async {
+    if (query.isEmpty) {
+      await _loadUsers();
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _searchErrorMessage = '';  // Réinitialiser le message d'erreur
+    });
+
+    try {
+      QuerySnapshot snapshot = await _firestore
+          .collection('Users')
+          .where('firstName', isGreaterThanOrEqualTo: query)
+          .where('firstName', isLessThanOrEqualTo: '$query\uf8ff')
+          .get();
+
+      // Si aucun résultat n'est trouvé avec 'firstName', essayer 'lastName'
+      if (snapshot.docs.isEmpty) {
+        snapshot = await _firestore
+            .collection('Users')
+            .where('lastName', isGreaterThanOrEqualTo: query)
+            .where('lastName', isLessThanOrEqualTo: '$query\uf8ff')
+            .get();
+      }
+
+      // Si toujours aucun résultat, essayer avec 'email'
+      if (snapshot.docs.isEmpty) {
+        snapshot = await _firestore
+            .collection('Users')
+            .where('email', isGreaterThanOrEqualTo: query)
+            .where('email', isLessThanOrEqualTo: '$query\uf8ff')
+            .get();
+      }
+
+      List<Map<String, dynamic>> searchedUsers = snapshot.docs.map((doc) {
+        return doc.data() as Map<String, dynamic>;
+      }).toList();
+
+      if (searchedUsers.isNotEmpty) {
+        setState(() {
+          _userList = searchedUsers;
+          _isLoading = false;
+        });
+        _scrollToUser(searchedUsers.first);
+      } else {
+        setState(() {
+          _userList = [];
+          _isLoading = false;
+          _searchErrorMessage = 'Aucun utilisateur trouvé';
+        });
+      }
+    } catch (e) {
+      print("Erreur lors de la recherche d'utilisateurs : $e");
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }*/
   // Local state for user list
   List<Map<String, dynamic>> _userList = [];
   bool _isLoading = true;
@@ -138,6 +215,7 @@ class _AllUsersScreenState extends State<AllUsersScreen> {
     );
   }
 
+
   // Delete user with all chat
   void _deleteUserWithChat(BuildContext context, String userId) {
     showDialog(
@@ -201,7 +279,6 @@ class _AllUsersScreenState extends State<AllUsersScreen> {
   String currentUserProfileImageUrl = '';
 
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -209,11 +286,11 @@ class _AllUsersScreenState extends State<AllUsersScreen> {
       appBar: MyAppBar(text: 'Utilisateurs',),
       body: _isLoading
           ? Center(
-        child: LoadingAnimationWidget.inkDrop(
+                  child: LoadingAnimationWidget.inkDrop(
           color: Theme.of(context).colorScheme.secondary,
           size: 35,
-        ),
-      )
+                  ),
+                )
           : _userList.isEmpty
           ? const Center(child: Text("Aucun utilisateur disponible"))
           : RefreshIndicator(
@@ -274,7 +351,8 @@ class _AllUsersScreenState extends State<AllUsersScreen> {
                   receiverID: userData["uid"],
                   receiverFirstName: userData["firstName"],
                   receiverLastName: userData["lastName"],
-                  receiverImagePath: userData["profileImageUrl"],
+                  receiverImagePath: userData["https://picsum.photos/seed/${random.nextInt(1000)}/300/300"],
+                  // receiverImagePath: userData["profileImageUrl"],
                 ));
               },
               onTapPro: () {
@@ -282,7 +360,8 @@ class _AllUsersScreenState extends State<AllUsersScreen> {
                   userId: userData["uid"],
                   userEmail: userData["email"],
                   userFirstName: userData["firstName"],
-                  userImagePath: userData["profileImageUrl"],
+                  userImagePath: userData["https://picsum.photos/seed/${random.nextInt(1000)}/300/300"],
+                  // userImagePath: userData["profileImageUrl"],
                   userLastName: userData["lastName"],
                 ));
               },

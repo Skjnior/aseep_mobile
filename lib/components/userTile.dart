@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 class UserTile extends StatelessWidget {
@@ -23,7 +25,7 @@ class UserTile extends StatelessWidget {
   Widget build(BuildContext context) {
     // Définir l'image à afficher, soit l'image de l'utilisateur, soit l'image par défaut
     String imageToDisplay = imageUrl ?? 'assets/images/ourLogo.jpg';
-
+    final Random random = Random();
     return GestureDetector(
       child: Container(
         decoration: BoxDecoration(
@@ -43,8 +45,8 @@ class UserTile extends StatelessWidget {
                 fit: BoxFit.cover,  // S'assurer que l'image couvre bien la zone
                 errorBuilder: (context, error, stackTrace) {
                   // Si l'image réseau échoue, afficher l'image par défaut
-                  return Image.asset(
-                    'assets/images/ourLogo.jpg',
+                  return Image.network(
+                    "https://picsum.photos/seed/${random.nextInt(1000)}/300/300",
                     width: 50,
                     height: 50,
                     fit: BoxFit.cover,

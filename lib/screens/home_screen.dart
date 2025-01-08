@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:aseep/components/userTile.dart';
 import 'package:aseep/myUserTiteFromHomeScreen.dart';
 import 'package:aseep/screens/chat/chat_screen.dart';
@@ -39,6 +41,12 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Map<String, dynamic>> _userList = [];
   bool _isLoading = true;
   String _searchErrorMessage = '';
+  static final random = Random();
+
+  static String randomPictureUrl() {
+    final randomInt = random.nextInt(1000);
+    return 'https://picsum.photos/seed/$randomInt/300/300';
+  }
 
   @override
   void initState() {
@@ -79,7 +87,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String currentUserLastName = '';
   String currentUserEmail = '';
   String currentUserProfileImageUrl = '';
-  void findUsers(String query) async {
+  /*void findUsers(String query) async {
     if (query.isEmpty) {
       await _loadUsers();
       return;
@@ -138,7 +146,7 @@ class _HomeScreenState extends State<HomeScreen> {
         _isLoading = false;
       });
     }
-  }
+  }*/
 
 
 
@@ -187,18 +195,30 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           TextButton(
             onPressed: () => Get.back(),
-            child: const Text('Non'),
+
+            child:  Text('Non', style: TextStyle(
+                fontSize: 15.0,
+                fontWeight: FontWeight.normal,
+                color: Theme.of(context).colorScheme.background
+            ),),
           ),
           TextButton(
             onPressed: () {
               MyServices().blockUser(userId);
               _refreshUsers();
               Get.back();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Utilisateur bloqué avec succès!")),
+              Get.snackbar(
+                "Bloquer",
+                "Utilisateur bloqué avec succès!",
+                snackPosition: SnackPosition.TOP,
+                backgroundColor: Colors.red.withOpacity(0.7)
               );
             },
-            child: const Text('Bloquer'),
+            child:  Text('Bloquer', style: TextStyle(
+                fontSize: 15.0,
+                fontWeight: FontWeight.normal,
+                color: Theme.of(context).colorScheme.background
+            ),),
           ),
         ],
       ),
@@ -272,7 +292,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
       appBar: MyAppBar(
-        text: 'Home Screen',
+        text: 'Home',
       ),
       drawer: const MyDrawer(
         userName: "",
@@ -285,7 +305,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: Column(
         children: [
-       /*   Padding(
+          /*Padding(
             padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 5),
             child: SizedBox(
               height: 46,
@@ -353,8 +373,8 @@ class _HomeScreenState extends State<HomeScreen> {
               child: ListWheelScrollView(
                 controller: _scrollController,  // Ajout du contrôleur
                 physics: const BouncingScrollPhysics(),
-                itemExtent: 570,
-                diameterRatio: 7.0,
+                itemExtent: 600,
+                diameterRatio: 3.0,
                 perspective: 0.003,
                 children: _userList.map((userData) {
                   return _builderListItem(userData, context);
@@ -374,7 +394,7 @@ class _HomeScreenState extends State<HomeScreen> {
           _deleteUserWithChat(context, userData["uid"]);
         },
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(10.0),
           child: Slidable(
             key: ValueKey(userData["uid"]),
             startActionPane: ActionPane(
@@ -406,12 +426,19 @@ class _HomeScreenState extends State<HomeScreen> {
               name: userData["lastName"],
               firstName: userData["firstName"],
               onTap: () {
-                Get.to(() => ChatScreen(
+               /* Get.to(() => ChatScreen(
                   receiverEmail: userData["email"],
                   receiverID: userData["uid"],
                   receiverFirstName: userData["firstName"],
                   receiverLastName: userData["lastName"],
                   receiverImagePath: userData["profileImageUrl"],
+                ));*/
+                Get.to(() => ChatScreen(
+                  receiverEmail: userData["email"],
+                  receiverID: userData["uid"],
+                  receiverFirstName: userData["firstName"],
+                  receiverLastName: userData["lastName"],
+                  receiverImagePath: 'https://picsum.photos/seed/${random.nextInt(1000)}/300/300',
                 ));
               },
               onTapPro: () {
@@ -419,7 +446,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   userId: userData["uid"],
                   userEmail: userData["email"],
                   userFirstName: userData["firstName"],
-                  userImagePath: userData["profileImageUrl"],
+                  userImagePath: 'https://picsum.photos/seed/${random.nextInt(1000)}/300/300',
+                  // userImagePath: userData["profileImageUrl"],
                   userLastName: userData["lastName"],
                 ));
               },

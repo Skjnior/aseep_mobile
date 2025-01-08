@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 class MyUserTileFromeHomeScreen extends StatelessWidget {
@@ -22,7 +24,7 @@ class MyUserTileFromeHomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     // Définir l'image à afficher, soit l'image de l'utilisateur, soit l'image par défaut
     String imageToDisplay = imageUrl ?? 'assets/images/ourLogo.jpg';
-
+    final Random random = Random();
     return GestureDetector(
       child: Container(
         decoration: BoxDecoration(
@@ -42,8 +44,8 @@ class MyUserTileFromeHomeScreen extends StatelessWidget {
                     height: 40,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
-                      return Image.asset(
-                        'assets/images/ourLogo.jpg',
+                      return Image.network(
+                        "https://picsum.photos/seed/${random.nextInt(1000)}/300/300",
                         width: 40,
                         height: 40,
                         fit: BoxFit.cover,
@@ -86,8 +88,8 @@ class MyUserTileFromeHomeScreen extends StatelessWidget {
                   imageToDisplay,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
-                    return Image.asset(
-                      'assets/images/ourLogo.jpg',
+                    return Image.network(
+                      'https://picsum.photos/seed/${random.nextInt(1000)}/300/300',
                       fit: BoxFit.cover,
                     );
                   },

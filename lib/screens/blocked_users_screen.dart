@@ -25,7 +25,11 @@ class BlockedUserPage extends StatelessWidget {
              // cancel button
              TextButton(
                  onPressed: () => Get.back(),
-                 child: Text("Annuler")
+                 child: Text("Annuler", style: TextStyle(
+                     fontSize: 15.0,
+                     fontWeight: FontWeight.normal,
+                     color: Theme.of(context).colorScheme.background
+                 ),)
              ),
 
              // unblock button
@@ -33,11 +37,18 @@ class BlockedUserPage extends StatelessWidget {
                  onPressed: () {
                    chatService.unblockUser(userId);
                    Get.back();
-                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Utilisateur debloquer avec succes!"),
-                   ),
+                   Get.snackbar(
+                       "Debloquer",
+                       "Utilisateur debloquer avec succes!",
+                       snackPosition: SnackPosition.TOP,
+                       backgroundColor: Colors.green.withOpacity(0.7)
                    );
                  },
-                 child: Text("Debloquer")
+                 child: Text("Debloquer", style: TextStyle(
+                     fontSize: 15.0,
+                     fontWeight: FontWeight.normal,
+                     color: Theme.of(context).colorScheme.background
+                 ),)
              ),
            ],
          )

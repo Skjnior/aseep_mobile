@@ -168,7 +168,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF2983A6),
+      backgroundColor: Theme.of(context).colorScheme.background,
       body: SingleChildScrollView(
         padding: const EdgeInsets.only(top: 70),
         child: Center(
@@ -184,22 +184,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF122640)
                 ),
-                child: AnimatedTextKit(
-                  animatedTexts: [
-                    RotateAnimatedText('ASEEP',
-                      textStyle: TextStyle(
-                    fontSize: 23.0,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.tertiary
-                ),),
-                    RotateAnimatedText('ASSOCIATION'),
-                    RotateAnimatedText('DES ETUDIANTS'),
-                    RotateAnimatedText("DE L'ECOLE"),
-                    RotateAnimatedText("POLYTECHNIQUE"),
-                  ],
-                  onTap: () {
-                    print("Tap Event");
-                  },
+                child: Text(
+                  "ASEEP-KOFI",
+                  style: TextStyle(
+                      fontSize: 23.0,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.primary
+                  ),
                 ),
               ),
                 const SizedBox(height: 10),
