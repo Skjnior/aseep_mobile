@@ -157,6 +157,30 @@ class _MyDrawerState extends State<MyDrawer> {
                     },
                   ),
                 ),
+                Padding(
+                  padding: EdgeInsets.only(left: 25),
+                  child: ListTile(
+                    title: Text(
+                      "Profile",
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.inversePrimary,
+                      ),
+                    ),
+                    leading: Icon(
+                      Icons.person,
+                      color: Theme.of(context).colorScheme.inversePrimary,
+                    ),
+                    onTap: () {
+                      /*Get.to(() => ProfileScreen(
+                          userEmail: userEmail,
+                          userId: userId,
+                          userFirstName: userFirstName,
+                          userLastName: userLastName,
+                          userImagePath: userImagePath
+                      ),*/
+                    },
+                  ),
+                ),
 
                 // Paramètres list tile
                 Padding(

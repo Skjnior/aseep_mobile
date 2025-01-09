@@ -1,9 +1,8 @@
+import 'dart:math';
 import 'package:aseep/services/chat/chat_services.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get_core/src/get_main.dart';
-import 'package:get/get_navigation/get_navigation.dart';
+import 'package:get/get.dart';
 import 'package:aseep/screens/chat/chat_screen.dart';
-
 import '../components/myAppBar.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -12,6 +11,9 @@ class ProfileScreen extends StatelessWidget {
   final String userLastName;
   final String userImagePath;
   final String userId;
+  final String userBirthDate;
+  final String userMatricule;
+  final List<String> userNiveaux;
 
   ProfileScreen({
     super.key,
@@ -19,38 +21,134 @@ class ProfileScreen extends StatelessWidget {
     required this.userId,
     required this.userFirstName,
     required this.userLastName,
-    required this.userImagePath
+    required this.userImagePath,
+    required this.userBirthDate,
+    required this.userMatricule,
+    required this.userNiveaux,
   });
 
   final MyServices _chatService = MyServices();
+  static final random = Random();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: MyAppBar(text: 'Profile',),
-      body: Center(
+      backgroundColor: Theme.of(context).colorScheme.background,
+      appBar: MyAppBar(
+        text: 'Profil',
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text("Email: $userEmail", style: TextStyle(fontSize: 18)),
-            Text("ID: $userId", style: TextStyle(fontSize: 18)),
+            // Image de profil
+            CircleAvatar(
+              radius: 60,
+              backgroundImage: NetworkImage(userImagePath),
+              onBackgroundImageError: (_, __) => Icon(
+                Icons.person,
+                size: 60,
+                color: Colors.grey.shade400,
+              ),
+            ),
             SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () async {
-                // Vérifiez si l'utilisateur existe dans la base de données
-                bool userExists = await _chatService.checkIfUserExists(userEmail);
 
+            // Nom complet
+            Text(
+              "$userFirstName $userLastName",
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(height: 10),
+
+            // Informations utilisateur sous forme de carte
+            Card(
+              margin: EdgeInsets.symmetric(vertical: 10),
+              elevation: 2,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.email, color: Colors.blueAccent),
+                        SizedBox(width: 10),
+                        Text(userEmail, style: TextStyle(fontSize: 16)),
+                      ],
+                    ),
+                    SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Icon(Icons.perm_identity, color: Colors.blueAccent),
+                        SizedBox(width: 10),
+                        Text("ID: $userId", style: TextStyle(fontSize: 16)),
+                      ],
+                    ),
+                    SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Icon(Icons.cake, color: Colors.blueAccent),
+                        SizedBox(width: 10),
+                        Text("Date de naissance: $userBirthDate", style: TextStyle(fontSize: 16)),
+                      ],
+                    ),
+                    SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Icon(Icons.badge, color: Colors.blueAccent),
+                        SizedBox(width: 10),
+                        Text("Matricule: $userMatricule", style: TextStyle(fontSize: 16)),
+                      ],
+                    ),
+                    SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Icon(Icons.school, color: Colors.blueAccent),
+                        SizedBox(width: 10),
+                        Text("Niveaux: ${userNiveaux.join(', ')}", style: TextStyle(fontSize: 16)),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            Spacer(),
+
+            // Bouton Echanger
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              onPressed: () async {
+                bool userExists = await _chatService.checkIfUserExists(userEmail);
                 if (userExists) {
-                  // Ouvrir la discussion avec cet utilisateur
-                  Get.to(() => ChatScreen(receiverEmail: userEmail, receiverID: userId,  receiverFirstName: userFirstName, receiverLastName: userLastName, receiverImagePath: userImagePath,));
+                  Get.to(() => ChatScreen(
+                    receiverEmail: userEmail,
+                    receiverID: userId,
+                    receiverFirstName: userFirstName,
+                    receiverLastName: userLastName,
+                    receiverImagePath: userImagePath,
+                  ));
                 } else {
-                  // Envoyer l'invitation par email
-                  // Remarquez que vous pouvez utiliser un service pour envoyer l'email comme montré précédemment
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Invitation envoyée à $userEmail")));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text("Invitation envoyée à $userEmail")),
+                  );
                 }
               },
-              child: Text("Ajouter aux contacts"),
+              child: Text(
+                'Echanger',
+                style: TextStyle(color: Colors.black),
+              ),
             ),
+
+            SizedBox(height: 20),
           ],
         ),
       ),

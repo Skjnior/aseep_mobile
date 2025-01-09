@@ -1,26 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:story_view/controller/story_controller.dart';
 import 'package:story_view/widgets/story_view.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class IntroductionScreen1 extends StatefulWidget {
-  IntroductionScreen1({super.key});
+  const IntroductionScreen1({super.key});
 
   @override
   State<IntroductionScreen1> createState() => _IntroductionScreen1State();
 }
 
 class _IntroductionScreen1State extends State<IntroductionScreen1> {
-  // To control the pageview
-  PageController _pageController = PageController();
   final StoryController controller = StoryController();
 
-  final int durationValeu = 7; // Durée de l'affichage de chaque élément
-  final int hauteur = 250;     // Hauteur de chaque conteneur
-
-  // To navigate pop on the last page
-  bool onLastPage = false;
+  final int durationValeu = 7; // Durée de chaque élément
 
   @override
   Widget build(BuildContext context) {
@@ -114,25 +108,57 @@ class _IntroductionScreen1State extends State<IntroductionScreen1> {
     ];
 
     return Scaffold(
-      backgroundColor: Colors.amber,
+      backgroundColor: Colors.black,
       body: Stack(
         children: [
           Positioned(
             child: StoryView(
+              indicatorColor: Theme.of(context).colorScheme.secondary,
               storyItems: storyItems,
               controller: controller,
               repeat: true,
               progressPosition: ProgressPosition.top,
-              indicatorForegroundColor: Colors.black,
-              indicatorColor: Colors.black.withOpacity(0.5),
             ),
           ),
           Positioned(
-            bottom: 10, // Positionnement de l'indicateur en bas
+            bottom: 40,
+            left: 0,
+            right: 0,
+            child: Center(
+              child: SizedBox(
+                width: 100.0,
+                height: 200.0,
+                child: Shimmer.fromColors(
+                  baseColor: Theme.of(context).colorScheme.primary, // Couleur de base en bas
+                  highlightColor: Theme.of(context).colorScheme.tertiary, // Couleur lumineuse en haut
+                  direction: ShimmerDirection.btt, // Effet de bas en haut
+                  child: const Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.keyboard_arrow_up_outlined,
+                        size: 40,
+                      ),
+                      Icon(
+                        Icons.keyboard_arrow_up_outlined,
+                        size: 40,
+                      ),
+                      Icon(
+                        Icons.keyboard_arrow_up_outlined,
+                        size: 40,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: 10,
             left: 0,
             right: 0,
             child: SmoothPageIndicator(
-              controller: _pageController,
+              controller: PageController(),
               count: storyItems.length,
               effect: WormEffect(
                 dotHeight: 8,

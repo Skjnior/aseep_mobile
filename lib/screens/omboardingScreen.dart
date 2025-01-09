@@ -45,42 +45,38 @@ class _OmbordingScreenState extends State<OmbordingScreen> {
 
           // Dot indicators
           Container(
-            alignment: Alignment(0, 0.75),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                GestureDetector(
-                  // Skip action
-                  onTap: () {
-                    _pageController.jumpToPage(3); // Skip to last page
-                  },
-                  child: const Text("Skip"),
+            margin: const EdgeInsets.only(top: 50),
+            alignment: const Alignment(0, 0.75),
+            child: onLastPage
+                ? GestureDetector(
+              // Done action
+              onTap: () {
+                // Navigate to AuthGate screen after onboarding
+                Get.off(() => const AuthGate());
+              },
+              child: Container(
+                padding: EdgeInsets.all(15),
+                decoration: BoxDecoration(
+                  border: Border.all(),
+                  shape: BoxShape.circle,
                 ),
-
-                // Dot indicator
-                /*SmoothPageIndicator(controller: _pageController, count: 4),*/
-
-                // Next or Done
-                onLastPage
-                    ? GestureDetector(
-                  // Done action
-                  onTap: () {
-                    // Navigate to AuthGate screen after onboarding
-                    Get.off(() => AuthGate());
-                  },
-                  child: const Text("Done"),
-                )
-                    : GestureDetector(
-                  // Next action
-                  onTap: () {
-                    _pageController.nextPage(
-                      duration: const Duration(milliseconds: 500),
-                      curve: Curves.easeIn,
-                    );
-                  },
-                  child: const Text("Next"),
+                child: Text(
+                    "OK",
+                  style: TextStyle(
+                      fontSize: 24,
+                      color: Colors.black
+                  ),
                 ),
-              ],
+              ),
+            )
+                : GestureDetector(
+              // Next action
+              onTap: () {
+                _pageController.nextPage(
+                  duration: const Duration(milliseconds: 500),
+                  curve: Curves.easeIn,
+                );
+              },
             ),
           ),
         ],

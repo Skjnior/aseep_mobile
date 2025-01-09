@@ -136,6 +136,9 @@ class _ChatScreenState extends State<ChatScreen> {
                 userFirstName: widget.receiverFirstName,
                 userLastName: widget.receiverLastName,
                 userImagePath: randomPictureUrl,
+                userBirthDate: '',
+                userMatricule: '',
+                userNiveaux: [],
               ),
             ),
             child: Container(

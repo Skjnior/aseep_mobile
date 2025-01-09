@@ -433,13 +433,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   receiverLastName: userData["lastName"],
                   receiverImagePath: userData["profileImageUrl"],
                 ));*/
-                Get.to(() => ChatScreen(
+               /* Get.to(() => ChatScreen(
                   receiverEmail: userData["email"],
                   receiverID: userData["uid"],
                   receiverFirstName: userData["firstName"],
                   receiverLastName: userData["lastName"],
                   receiverImagePath: 'https://picsum.photos/seed/${random.nextInt(1000)}/300/300',
-                ));
+                ));*/
               },
               onTapPro: () {
                 Get.to(() => ProfileScreen(
@@ -448,7 +448,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   userFirstName: userData["firstName"],
                   userImagePath: 'https://picsum.photos/seed/${random.nextInt(1000)}/300/300',
                   // userImagePath: userData["profileImageUrl"],
-                  userLastName: userData["lastName"],
+                  userLastName: userData["lastName"], userBirthDate: '', userNiveaux: [], userMatricule: '',
                 ));
               },
             ),
@@ -458,5 +458,6 @@ class _HomeScreenState extends State<HomeScreen> {
     }
     return const SizedBox();
   }
+
 }
 

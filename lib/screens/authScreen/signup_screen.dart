@@ -382,6 +382,23 @@ class _SignupScreenState extends State<SignupScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    DefaultTextStyle(
+                      style: const TextStyle(
+                          fontSize: 24.0,
+                          fontFamily: 'Horizon',
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF122640)
+                      ),
+                      child: Text(
+                        "ASEEP-KOFI",
+                        style: TextStyle(
+                            fontSize: 23.0,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10,),
                     // Avatar avec Neumorphism
                     neumorphicContainer(
                       child: GestureDetector(

@@ -363,6 +363,9 @@ class _AllUsersScreenState extends State<AllUsersScreen> {
                   userImagePath: userData["https://picsum.photos/seed/${random.nextInt(1000)}/300/300"],
                   // userImagePath: userData["profileImageUrl"],
                   userLastName: userData["lastName"],
+                  userBirthDate: userData["birthDate"],
+                  userMatricule: userData["matricule"],
+                  userNiveaux: List<String>.from(userData["niveaux"]),
                 ));
               },
             ),
