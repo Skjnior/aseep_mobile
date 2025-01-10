@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:animated_text_kit/animated_text_kit.dart';
 import 'package:aseep/services/auth/auth_services.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -125,6 +127,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   // Local state for user list
   List<Map<String, dynamic>> _userList = [];
+  static final random = Random();
 
   Future<void> _loadUsers() async {
     setState(() {
@@ -215,8 +218,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     ],
                   ),
                   child: ClipOval(
-                    child: Image.asset(
-                      'assets/images/ourLogo.jpg',
+                    child: Image.network(
+                      '"https://picsum.photos/seed/${random.nextInt(1000)}/300/300"',
                       fit: BoxFit.cover,
                       width: 120,
                       height: 120,

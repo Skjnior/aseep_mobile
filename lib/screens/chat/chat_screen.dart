@@ -130,7 +130,7 @@ class _ChatScreenState extends State<ChatScreen> {
         actions: [
           GestureDetector(
             onTap: () => Get.to(
-                  () => ProfileScreen(
+                  () => UsersProfileScreen(
                 userEmail: widget.receiverEmail,
                 userId: widget.receiverID,
                 userFirstName: widget.receiverFirstName,

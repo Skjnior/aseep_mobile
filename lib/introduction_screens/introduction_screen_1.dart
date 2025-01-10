@@ -33,8 +33,8 @@ class _IntroductionScreen1State extends State<IntroductionScreen1> {
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(20), // Applique les bords arrondis à l'image
-                child: Image.asset(
-                  "assets/images/ourLogo.jpg",
+                child: Image.network(
+                  "https://picsum.photos/seed/picsum/200/300",
                   fit: BoxFit.cover, // Ajuste l'image pour couvrir toute la taille du conteneur
                 ),
               ),

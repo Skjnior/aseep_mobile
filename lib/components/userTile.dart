@@ -24,7 +24,7 @@ class UserTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Définir l'image à afficher, soit l'image de l'utilisateur, soit l'image par défaut
-    String imageToDisplay = imageUrl ?? 'assets/images/ourLogo.jpg';
+    String imageToDisplay = imageUrl ?? '';
     final Random random = Random();
     return GestureDetector(
       child: Container(

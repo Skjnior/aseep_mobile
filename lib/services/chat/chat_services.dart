@@ -126,6 +126,54 @@ class MyServices extends ChangeNotifier {
 
 
 
+/// Get All users
+  Stream<List<Map<String, dynamic>>> getAllUsers() {
+    final currentUser = _auth.currentUser;
+
+    if (currentUser == null) {
+      throw Exception("Utilisateur non connecté");
+    }
+
+    // Retourner un flux des utilisateurs filtrés
+    return _firestore.collection('Users')
+        .snapshots()
+        .asyncMap((snapshot) async {
+      // Récupérer les identifiants des utilisateurs bloqués
+      final blockedSnapshot = await _firestore
+          .collection('Users')
+          .doc(currentUser.uid)
+          .collection('BlockedUsers')
+          .get();
+      final blockedUserIds = blockedSnapshot.docs.map((doc) => doc.id).toSet();
+
+      // Récupérer les utilisateurs supprimés par d'autres
+      final deletedSnapshot = await _firestore
+          .collection('Users')
+          .doc(currentUser.uid)
+          .collection('UsersDeletedByOtherUsers')
+          .get();
+      final deletedUserIds = deletedSnapshot.docs.map((doc) => doc.id).toSet();
+
+      // Récupérer tous les utilisateurs
+      final usersSnapshot = snapshot.docs;
+
+      // Filtrer les utilisateurs selon les conditions
+      final filteredUsers = usersSnapshot
+          .where((doc) {
+        final userId = doc.id;
+        final data = doc.data();
+
+        // Exclure l'utilisateur courant, les utilisateurs bloqués et supprimés
+        return data['email'] != currentUser.email &&
+            !blockedUserIds.contains(userId) &&
+            !deletedUserIds.contains(userId);
+      })
+          .map((doc) => doc.data())
+          .toList();
+
+      return filteredUsers;
+    });
+  }
 
 
 
@@ -158,9 +206,6 @@ class MyServices extends ChangeNotifier {
         .collection("messages")
         .add(newMessage.toMap());
   }
-
-
-
 
 
   Stream<QuerySnapshot> getAllMessages(String userID) {
@@ -294,9 +339,6 @@ class MyServices extends ChangeNotifier {
       return userDocs.map((doc) => doc.data() as Map<String, dynamic>).toList();
     });
   } //
-
-
-
 
 
   /* Users deleted */

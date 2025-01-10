@@ -23,7 +23,7 @@ class MyUserTileFromeHomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Définir l'image à afficher, soit l'image de l'utilisateur, soit l'image par défaut
-    String imageToDisplay = imageUrl ?? 'assets/images/ourLogo.jpg';
+    String imageToDisplay = imageUrl ?? 'https://picsum.photos/seed/100/300/300';
     final Random random = Random();
     return GestureDetector(
       child: Container(
@@ -89,7 +89,7 @@ class MyUserTileFromeHomeScreen extends StatelessWidget {
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
                     return Image.network(
-                      'https://picsum.photos/seed/${random.nextInt(1000)}/300/300',
+                      'https://picsum.photos/seed/picsum/200/300',
                       fit: BoxFit.cover,
                     );
                   },

@@ -13,6 +13,7 @@ import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../screens/grande_salle.dart';
+import '../screens/my_Profile.dart';
 
 class MyDrawer extends StatefulWidget {
   const MyDrawer({super.key, required String userName, required String userEmail, required String userImage});
@@ -171,13 +172,7 @@ class _MyDrawerState extends State<MyDrawer> {
                       color: Theme.of(context).colorScheme.inversePrimary,
                     ),
                     onTap: () {
-                      /*Get.to(() => ProfileScreen(
-                          userEmail: userEmail,
-                          userId: userId,
-                          userFirstName: userFirstName,
-                          userLastName: userLastName,
-                          userImagePath: userImagePath
-                      ),*/
+                      Get.to(() => MyProfileScreen());
                     },
                   ),
                 ),

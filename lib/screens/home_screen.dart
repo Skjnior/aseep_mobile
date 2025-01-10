@@ -14,6 +14,7 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/get_navigation.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
+import 'package:intl/intl.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import '../components/myAppBar.dart';
 import '../components/my_drawer.dart';
@@ -287,6 +288,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
 
 
+  String formatDate(String birthDate) {
+    // Convertir la chaîne de date en DateTime
+    DateTime parsedDate = DateTime.parse(birthDate);
+
+    // Utiliser DateFormat pour formater la date
+    return DateFormat('dd/MM/yyyy').format(parsedDate);
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -305,52 +316,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: Column(
         children: [
-          /*Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 5),
-            child: SizedBox(
-              height: 46,
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(100),
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                padding: const EdgeInsets.only(top: 10, left: 10, bottom: 8, right: 10),
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 18.0),
-                        child: TextField(
-                          controller: _searchController,
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.tertiary,
-                          ),
-                          cursorColor: Theme.of(context).colorScheme.primary,
-                          maxLines: 1,
-                          decoration: InputDecoration(
-                            suffixIcon: IconButton(
-                              onPressed: () => findUsers(_searchController.text),
-                              icon: Icon(
-                                Icons.search,
-                                color: Theme.of(context).colorScheme.tertiary,
-                              ),
-                            ),
-                            hintStyle: TextStyle(
-                              color: Theme.of(context).colorScheme.tertiary,
-                            ),
-                            isDense: true,
-                            border: InputBorder.none,
-                            hintText: 'Recherche',
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),*/
           Expanded(
             child: _isLoading
                 ? Center(
@@ -442,14 +407,18 @@ class _HomeScreenState extends State<HomeScreen> {
                 ));*/
               },
               onTapPro: () {
-                Get.to(() => ProfileScreen(
+                Get.to(() => UsersProfileScreen(
                   userId: userData["uid"],
                   userEmail: userData["email"],
                   userFirstName: userData["firstName"],
-                  userImagePath: 'https://picsum.photos/seed/${random.nextInt(1000)}/300/300',
+                  userImagePath: '"https://picsum.photos/seed/${random.nextInt(1000)}/300/300"',
                   // userImagePath: userData["profileImageUrl"],
-                  userLastName: userData["lastName"], userBirthDate: '', userNiveaux: [], userMatricule: '',
+                  userLastName: userData["lastName"],
+                  userBirthDate: formatDate(userData["birthDate"]),
+                  userNiveaux: List<String>.from(userData["niveaux"] ?? []),
+                  userMatricule: userData["matricule"],
                 ));
+
               },
             ),
           ),

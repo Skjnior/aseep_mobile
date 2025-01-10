@@ -20,7 +20,7 @@ class FiliereDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Définir l'image à afficher, soit l'image de l'utilisateur, soit l'image par défaut
-    String imageToDisplay = imageUrl ?? 'assets/images/ourLogo.jpg';
+    String imageToDisplay = imageUrl ?? 'https://picsum.photos/seed/picsum/200/300';
 
     return Scaffold(
       appBar: AppBar(
@@ -42,8 +42,8 @@ class FiliereDetailsScreen extends StatelessWidget {
                   height: 150,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
-                    return Image.asset(
-                      'assets/images/ourLogo.jpg',
+                    return Image.network(
+                      'https://picsum.photos/seed/picsum/200/300',
                       width: 150,
                       height: 150,
                       fit: BoxFit.cover,

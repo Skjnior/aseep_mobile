@@ -278,12 +278,32 @@ class _AllUsersScreenState extends State<AllUsersScreen> {
   String currentUserEmail = '';
   String currentUserProfileImageUrl = '';
 
+  void _scrollToUser(Map<String, dynamic> userData) {
+    int index = _userList.indexOf(userData);
+    if (index != -1 && _scrollController.hasClients) {
+      // Utilisation d'une méthode mieux adaptée pour faire défiler
+      double itemHeight = 100.0;  // Vous pouvez ajuster la hauteur des éléments ici
+      _scrollController.jumpTo(index * itemHeight);
+    }
+  }
+
+
+
+
+
+
+
+
+
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
-      appBar: MyAppBar(text: 'Utilisateurs',),
+      appBar: MyAppBar(
+        text: 'Utilisateurs',
+      ),
       body: _isLoading
           ? Center(
                   child: LoadingAnimationWidget.inkDrop(
@@ -292,7 +312,28 @@ class _AllUsersScreenState extends State<AllUsersScreen> {
                   ),
                 )
           : _userList.isEmpty
-          ? const Center(child: Text("Aucun utilisateur disponible"))
+          ? Center(
+          child: Center(
+            child: Container(
+              margin: const EdgeInsets.only(top: 380),
+              child: Column(
+                children: [
+                    Text(
+                      "Aucun utilisateur disponible",
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.inversePrimary,
+                    ),
+                  ),
+                  IconButton(
+                      onPressed: () => _refreshUsers(), icon: const Icon(
+                      Icons.refresh,
+                    size: 28,
+                  )
+                  )
+                ],
+              ),
+            ),
+          ))
           : RefreshIndicator(
         backgroundColor: Theme.of(context).colorScheme.secondary,
         onRefresh: _refreshUsers,
@@ -304,8 +345,143 @@ class _AllUsersScreenState extends State<AllUsersScreen> {
           },
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            showAddUserBottomSheet(context);
+          },
+          child: const Icon(
+          Icons.search
+      ),
+      ),
     );
   }
+
+  void findUsers(String query) async {
+    if (query.isEmpty) {
+      await _loadUsers();
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _searchErrorMessage = ''; // Reset error message
+    });
+
+    try {
+      QuerySnapshot snapshot = await _firestore
+          .collection('Users')
+          .where('firstName', isGreaterThanOrEqualTo: query)
+          .where('firstName', isLessThanOrEqualTo: '$query\uf8ff')
+          .get();
+
+      // Si aucun résultat n'est trouvé avec 'firstName', essayer 'lastName'
+      if (snapshot.docs.isEmpty) {
+        snapshot = await _firestore
+            .collection('Users')
+            .where('lastName', isGreaterThanOrEqualTo: query)
+            .where('lastName', isLessThanOrEqualTo: '$query\uf8ff')
+            .get();
+      }
+
+      // Si toujours aucun résultat, essayer avec 'email'
+      if (snapshot.docs.isEmpty) {
+        snapshot = await _firestore
+            .collection('Users')
+            .where('email', isGreaterThanOrEqualTo: query)
+            .where('email', isLessThanOrEqualTo: '$query\uf8ff')
+            .get();
+      }
+
+      List<Map<String, dynamic>> searchedUsers = snapshot.docs.map((doc) {
+        return doc.data() as Map<String, dynamic>;
+      }).toList();
+
+      // Vérifier si des utilisateurs ont été trouvés
+      if (searchedUsers.isNotEmpty) {
+        setState(() {
+          _userList = searchedUsers;
+          _isLoading = false;
+        });
+        _scrollToUser(searchedUsers.first);
+      } else {
+        setState(() {
+          _userList = [];
+          _isLoading = false;
+          _searchErrorMessage = 'Utilisateur non trouvé'; // Message d'erreur
+        });
+      }
+    } catch (e) {
+      print("Erreur lors de la recherche d'utilisateurs : $e");
+      setState(() {
+        _isLoading = false;
+        _searchErrorMessage = 'Erreur de recherche'; // Message d'erreur si une exception survient
+      });
+    }
+  }
+
+
+  void showAddUserBottomSheet(BuildContext context) {
+    Get.bottomSheet(
+      Container(
+        padding: const EdgeInsets.all(16.0),
+        height: 800,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.background,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              "Recherche d'un utilisateur",
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.inversePrimary,
+                fontSize: 18
+              ),
+            ),
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: 160),
+              child: const Divider(
+                height: 20,
+                thickness: 1.52,
+                color: Colors.white,
+              ),
+            ),
+            Container(
+              margin: const EdgeInsets.only(left: 10, right: 10),
+              child: Center(
+                child: TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    hintText: 'Rechercher...',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(21),
+                    ),
+                    hintStyle: const TextStyle(color: Colors.white70),
+                    suffixIcon: IconButton(
+                      onPressed: () {
+                        findUsers(_searchController.text);
+                        _searchController.clear();
+                        Get.back();
+                        setState(() {
+                        });
+                      },
+                      icon: const Icon(Icons.search, color: Colors.white),
+                    ),
+                  ),
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ),
+            ),
+            // Vérification de la liste et affichage d'un message si aucun utilisateur n'est trouvé
+
+          ],
+        ),
+      ),
+    );
+  }
+
+
 
   Widget _builderListItem(Map<String, dynamic> userData, BuildContext context) {
     if (userData["email"] != _authService.getCurrentUser()!.email) {
@@ -352,16 +528,14 @@ class _AllUsersScreenState extends State<AllUsersScreen> {
                   receiverFirstName: userData["firstName"],
                   receiverLastName: userData["lastName"],
                   receiverImagePath: userData["https://picsum.photos/seed/${random.nextInt(1000)}/300/300"],
-                  // receiverImagePath: userData["profileImageUrl"],
                 ));
               },
               onTapPro: () {
-                Get.to(() => ProfileScreen(
+                Get.to(() => UsersProfileScreen(
                   userId: userData["uid"],
                   userEmail: userData["email"],
                   userFirstName: userData["firstName"],
                   userImagePath: userData["https://picsum.photos/seed/${random.nextInt(1000)}/300/300"],
-                  // userImagePath: userData["profileImageUrl"],
                   userLastName: userData["lastName"],
                   userBirthDate: userData["birthDate"],
                   userMatricule: userData["matricule"],
@@ -376,6 +550,10 @@ class _AllUsersScreenState extends State<AllUsersScreen> {
       return const SizedBox.shrink();
     }
   }
+
+
+
+
 }
 
 
